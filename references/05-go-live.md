@@ -16,7 +16,7 @@
    - 條件：BTCUSDT **大於（Greater Than）** 數值 `1`
    - 觸發：**每根 K 棒收盤一次（Once Per Bar Close）**
    - Webhook URL：你的網址
-   - 訊息：
+   - 訊息：把預設文字全部刪掉，換成（passphrase 換成你的）：
 
      ```json
      {"passphrase": "你的passphrase", "symbol": "BTCSPARTANS_USDT", "action": "long", "qty": 1}

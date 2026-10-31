@@ -42,7 +42,7 @@ sudo bash install.sh install     # 輸入環境、API Key、Secret；畫面會�
 sudo bash install.sh https       # 建立 Webhook URL（需先開放 80、443）
 ```
 
-然後在 TradingView 建立警報，Webhook URL 填安裝時顯示的網址，訊息填：
+然後在 TradingView 建立警報，Webhook URL 填安裝時顯示的網址。**「訊息」欄位的預設文字要全部刪掉**（預設文字不是 JSON，不會下單），換成：
 
 ```json
 {"passphrase": "你的passphrase", "symbol": "BTCSPARTANS_USDT", "market_position": "{{strategy.market_position}}", "size": "{{strategy.market_position_size}}", "unit": "coin"}

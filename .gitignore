@@ -1,0 +1,20 @@
+# Public repository root allowlist: local deployment files stay untracked.
+/*
+!/.gitignore
+!/README.md
+!/SKILL.md
+!/llms.txt
+!/LICENSE
+!/bridge/
+!/references/
+!/docs/
+
+__pycache__/
+*.pyc
+.DS_Store
+*.pem
+*.key
+.env
+.env.*
+*.log
+onebullex-tv.env

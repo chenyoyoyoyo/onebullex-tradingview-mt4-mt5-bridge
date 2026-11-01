@@ -52,6 +52,7 @@ cd ~/onebullex-tradingview-bridge/bridge
 | 瀏覽器終端機中文是亂碼 | Lightsail 瀏覽器終端機的顯示問題，不影響執行；提示都附英文 |
 | `-bash: ubuntu@ip-...: No such file or directory` | 把提示符一起貼進去了，忽略即可，只貼指令本身 |
 | 警報突然沒有訊號 | 檢查 TradingView 警報是否到期或被停用；修改策略參數後要重建警報 |
+| MT4／MT5 同步的問題 | 看 MT 圖表左上角的狀態，對照 [08 疑難排解](08-mt4-mt5.md#疑難排解) |
 
 ## 安全
 

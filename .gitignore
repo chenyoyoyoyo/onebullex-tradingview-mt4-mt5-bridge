@@ -8,6 +8,7 @@
 !/bridge/
 !/references/
 !/docs/
+!/mt/
 
 __pycache__/
 *.pyc

@@ -54,6 +54,14 @@
 - 也可以寫 `"target": 2`（多 2 張）、`"target": -2`（空 2 張）、`"target": 0`（空手）。
 - 指標警報不能用 `{{strategy...}}` 變數；做多、做空、平倉各建一個警報，各自的訊息填對應的 action。
 
+## 多空分開的訊息（進階）
+
+```json
+{"passphrase": "你的passphrase", "symbol": "XAUSPARTANS_USDT", "long": 2, "short": 1}
+```
+
+同時指定多單與空單各要持有幾張（MT4／MT5 同步程式的鎖倉模式就是送這種訊息）。需要帳戶可以同時持有多空。
+
 ## 交易對
 
 訊息裡的 `symbol` 決定在 OneBullEx 交易哪個合約，**跟 TradingView 圖表是哪家交易所無關**。圖表可以用幣安的 BTCUSDT.P，訊息寫 BTCSPARTANS_USDT，就會下在 BTCSPARTANS_USDT。

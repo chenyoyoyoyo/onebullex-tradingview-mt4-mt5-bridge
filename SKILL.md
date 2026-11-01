@@ -1,6 +1,6 @@
 ---
 name: onebullex-tradingview-bridge
-description: Guide a trader through connecting TradingView strategy or indicator alerts to their OneBullEx Spartans (斯巴達) bot account with a self-hosted webhook receiver — rent a Linux server, open ports 80/443, install the receiver and HTTPS, write the alert message, dry-run, then go live. Use when the user mentions TradingView + OneBullEx, Spartans/斯巴達 bot, TradingView webhook auto-trading, or this repository.
+description: Guide a trader through connecting TradingView strategy or indicator alerts, or MT4/MT5 positions, to their OneBullEx Spartans (斯巴達) bot account with a self-hosted webhook receiver — rent a Linux server, open ports 80/443, install the receiver and HTTPS, write the alert message or install the MT sync EA, dry-run, then go live. Use when the user mentions TradingView or MT4/MT5 + OneBullEx, Spartans/斯巴達 bot, webhook auto-trading or copy/sync to Spartans, or this repository.
 ---
 
 # OneBullEx TradingView Bridge — 給 AI 助手的操作指南
@@ -26,6 +26,7 @@ TradingView 警報 ──HTTPS──▶ 使用者自己的 Linux 主機（Caddy 
 | `references/05-go-live.md` | 測試警報 → 試跑 → 正式 1 張 → 平倉 → 接策略、上線清單 |
 | `references/06-quantity-and-risk.md` | 張數、名目價值、槓桿、全倉／逐倉、防呆 |
 | `references/07-operations.md` | 維運指令、紀錄解讀、疑難排解 |
+| `references/08-mt4-mt5.md` | MT4／MT5 同步程式：允許 VPS IP、安裝與編譯 EA、WebRequest 網址、參數、倉位大小、鎖倉、停止同步 |
 | `docs/VALIDATION.md` | 已驗證的範圍；不得把未驗證項目說成已驗證 |
 
 斯巴達本身的規則（資金帳戶與合約帳戶、認購贖回、分潤）以官方倉庫為準：https://github.com/Onebullex-dev/spartan-strategy-partner-skill
@@ -39,6 +40,18 @@ TradingView 警報 ──HTTPS──▶ 使用者自己的 Linux 主機（Caddy 
 5. **測試警報**（`05` 第 1 段）：BTCUSDT 1 分鐘圖「大於 1、每根 K 棒收盤一次」的警報，確認紀錄出現 `[試跑，不下單] ... 開多 1 張`。
 6. **正式 1 張**（`05` 第 2 段）：取得使用者明確同意後 `install.sh live`，確認開倉成交、重送不加倉；改訊息為 `close` 平倉；刪除測試警報。
 7. **接策略**（`04`、`06`）：和使用者確認每單張數、槓桿、保證金模式與防呆後，建立策略警報，核對第一筆實盤訊號。
+
+## 使用者用 MT4／MT5 時
+
+依 `references/08-mt4-mt5.md`：
+
+1. 確認交易的商品在 OneBullEx 有對應合約（黃金、BTC、ETH）；外匯、指數等不能同步，要先說清楚。
+2. 接收程式主機照上面步驟 2–4 安裝（已經有的可共用）。
+3. 請使用者準備 24 小時開機、固定 IP 的 Windows VPS，查出 IP 後 `install.sh set TV_ALLOWED_IPS tradingview,<IP>`。
+4. 引導放入 `mt/OneBullExSync.mq4`（或 `.mq5`）、在 MetaEditor 按 F7 編譯、在選項加入 WebRequest 網址（只到網域）。
+5. 一起決定參數：`SymbolMap` 用 MT 市場報價裡的實際名稱；`Multiplier` 依兩邊資金比例算，並換算成張數講給使用者聽；`HedgeMode` 依使用者是否要在 OneBullEx 呈現鎖倉；只同步特定 EA 時填 `MagicFilter`。
+6. 提醒：掛上時會立刻同步現有持倉；先 `install.sh dryrun` 看紀錄，再 `live` 用最小手數開平一次。不要在 OneBullEx 手動平倉；停止同步前先在 MT 平倉。
+7. 同步程式未在使用者的 MT 上編譯前，以編譯結果為準；編譯錯誤請使用者貼出錯誤訊息。
 
 ## 警報訊息：一定要替使用者寫好，並明確要他換掉預設文字
 

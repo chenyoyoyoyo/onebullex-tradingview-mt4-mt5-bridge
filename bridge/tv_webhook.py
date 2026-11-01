@@ -12,7 +12,8 @@ TradingView 訊號接收程式：TradingView 警報（webhook）→ 本程式 �
     TV_PASSPHRASE    TradingView 訊息裡必須帶的密碼
     TV_PORT          監聽埠（只聽 127.0.0.1，由 Caddy 提供 HTTPS 對外），預設 8780
     TV_DRY_RUN       1 = 只記錄要下的單、不送出（預設 1）；確認訊號正確後改 0
-    TV_ALLOWED_IPS   允許的來源 IP，逗號分隔；預設為 TradingView 官方 4 個 IP；all 表示不限制
+    TV_ALLOWED_IPS   允許的來源 IP，逗號分隔；預設為 TradingView 官方 4 個 IP；all 表示不限制；
+                     清單中的 tradingview 代表 TradingView 官方 IP（例如 tradingview,203.0.113.5）
     TV_SYMBOLS       選用：只允許這些交易對，逗號分隔；預設 all
     TV_MAX_QTY       選用：單一交易對持倉上限（張），超過就不執行；預設 0 = 不限
     TV_LEVERAGE      選用：開倉前把該合約槓桿設成此值；預設 0 = 沿用帳戶設定
@@ -25,6 +26,8 @@ TradingView 訊號接收程式：TradingView 警報（webhook）→ 本程式 �
     {"passphrase": "...", "symbol": "BTCSPARTANS_USDT", "target": 2}
 或（指標警報）
     {"passphrase": "...", "symbol": "BTCSPARTANS_USDT", "action": "long", "qty": 2}
+或（多空分開，MT4／MT5 同步程式的鎖倉模式）
+    {"passphrase": "...", "symbol": "XAUSPARTANS_USDT", "long": 3, "short": 1, "unit": "coin"}
 
 只用 Python 標準函式庫。
 """
@@ -101,7 +104,8 @@ def to_contracts(amount, unit, contract_size):
 
 
 def parse_signal(msg):
-    """回傳 (symbol 原字串, 目標的「數量」Decimal（帶正負號）, unit, 說明)。"""
+    """回傳 (symbol 原字串, 目標數量, unit, 說明)。
+    目標數量：淨部位為 Decimal（多為正、空為負）；多空分開為 (多, 空) 兩個非負 Decimal。"""
     if not isinstance(msg, dict):
         raise SignalError("訊息必須是 JSON 物件")
     symbol = str(msg.get("symbol") or "").strip()
@@ -127,6 +131,10 @@ def parse_signal(msg):
     elif "target" in msg:
         target = _dec(msg.get("target"), "target")
         how = f"target={target}"
+    elif "long" in msg or "short" in msg:
+        lq = abs(_dec(msg.get("long", 0), "long"))
+        sq = abs(_dec(msg.get("short", 0), "short"))
+        return symbol, (lq * mult, sq * mult), unit, f"long={lq} short={sq}"
     elif "action" in msg:
         action = str(msg.get("action") or "").strip().lower()
         if action in ("close", "flat", "exit"):
@@ -143,8 +151,14 @@ def parse_signal(msg):
                 raise SignalError(f"action 只能是 long、short、close，收到 {action!r}")
         how = f"action={action}"
     else:
-        raise SignalError("訊息要有 market_position+size、target 或 action 其中一種")
+        raise SignalError("訊息要有 market_position+size、target、action 或 long/short 其中一種")
     return symbol, target * mult, unit, how
+
+
+def describe(target):
+    if isinstance(target, tuple):
+        return f"多 {target[0]}／空 {target[1]} 張"
+    return f"{target} 張"
 
 
 class Executor:
@@ -236,9 +250,13 @@ class Executor:
         return o
 
     def plan(self, sym, target):
-        """回傳 (目前淨部位, 要下的單列表)。單 = (動作說明, orderSide, positionSide, 張數, 持倉ID或None)。"""
+        """回傳 (目前淨部位, 要下的單列表)。單 = (動作說明, orderSide, positionSide, 張數, 持倉ID或None)。
+        target 為整數（淨部位）或 (多, 空)。"""
         current, pos = self.net(sym)
-        want_long, want_short = max(target, 0), max(-target, 0)
+        if isinstance(target, tuple):
+            want_long, want_short = target
+        else:
+            want_long, want_short = max(target, 0), max(-target, 0)
         steps = []
         for side, want in (("SHORT", want_short), ("LONG", want_long)):
             excess = self.total(pos[side]) - want
@@ -260,30 +278,39 @@ class Executor:
                               "BUY" if side == "LONG" else "SELL", side, add, None))
         return current, steps
 
+    def _now(self, sym, hedge):
+        """目前持倉：淨部位模式回傳淨張數；多空分開模式回傳 (多, 空)。"""
+        n, pos = self.net(sym)
+        return (self.total(pos["LONG"]), self.total(pos["SHORT"])) if hedge else n
+
     def move_to(self, sym, target):
-        if self.max_qty and abs(target) > self.max_qty:
-            raise ApiError(f"目標持倉 {target} 張超過設定的上限 {self.max_qty} 張，不執行")
+        hedge = isinstance(target, tuple)
+        biggest = max(target) if hedge else abs(target)
+        if self.max_qty and biggest > self.max_qty:
+            raise ApiError(f"目標持倉 {describe(target)}超過設定的上限 {self.max_qty} 張，不執行")
         current, steps = self.plan(sym, target)
         name = display_symbol(sym)
+        if hedge:
+            current = self._now(sym, True)
         if not steps:
-            log(f"{name} 目前淨部位 {current} 張，已等於目標，不下單")
+            log(f"{name} 目前 {describe(current)}，已等於目標，不下單")
             return current
         desc = "、".join(f"{s[0]} {s[3]} 張" for s in steps)
         if self.dry_run:
-            log(f"[試跑，不下單] {name} 目前 {current} 張 → 目標 {target} 張：{desc}")
+            log(f"[試跑，不下單] {name} 目前 {describe(current)} → 目標 {describe(target)}：{desc}")
             return current
-        log(f"{name} 目前 {current} 張 → 目標 {target} 張：{desc}")
+        log(f"{name} 目前 {describe(current)} → 目標 {describe(target)}：{desc}")
         for _, order_side, position_side, q, pid in steps:
             self._send(sym, order_side, position_side, q, pid)
         final = current
         for _ in range(10):
-            final, _ = self.net(sym)
+            final = self._now(sym, hedge)
             if final == target:
                 break
             time.sleep(POLL_INTERVAL)
         if final != target:
-            raise ApiError(f"{name} 下單後淨部位 {final} 張，與目標 {target} 張不符，請人工核對")
-        log(f"{name} 完成，淨部位 {final} 張")
+            raise ApiError(f"{name} 下單後持倉 {describe(final)}，與目標 {describe(target)}不符，請人工核對")
+        log(f"{name} 完成，{'持倉' if hedge else '淨部位'} {describe(final)}")
         return final
 
 
@@ -341,9 +368,14 @@ class Receiver:
                 self.busy = True
             result = {"time": time.strftime("%Y-%m-%d %H:%M:%S"), "symbol": display_symbol(sym), "signal": how}
             try:
-                target = to_contracts(amount, unit, self.executor.contract_size(sym) if unit == "coin" else Decimal(1))
-                result["target"] = target
-                result["net"] = self.executor.move_to(sym, target)
+                cs = self.executor.contract_size(sym) if unit == "coin" else Decimal(1)
+                if isinstance(amount, tuple):
+                    target = (to_contracts(amount[0], unit, cs), to_contracts(amount[1], unit, cs))
+                else:
+                    target = to_contracts(amount, unit, cs)
+                result["target"] = list(target) if isinstance(target, tuple) else target
+                done = self.executor.move_to(sym, target)
+                result["net"] = list(done) if isinstance(done, tuple) else done
                 result["ok"] = True
             except Exception as e:   # 單一訊號失敗不影響後續訊號
                 result["ok"] = False
@@ -414,7 +446,13 @@ def env_list(name, default):
         return default
     if v.lower() == "all":
         return None
-    return [x.strip() for x in v.split(",") if x.strip()]
+    out = []
+    for x in (x.strip() for x in v.split(",")):
+        if x.lower() == "tradingview":
+            out.extend(TRADINGVIEW_IPS)
+        elif x:
+            out.append(x)
+    return out
 
 
 def main():

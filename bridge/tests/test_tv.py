@@ -26,7 +26,8 @@ tv.POLL_INTERVAL = 0.05
 
 S = {"positions": [], "orders": {}, "next_oid": 5000, "next_pid": 100, "created": [], "leverage": 20,
      "adjust": [], "fail_next": False}
-SPECS = {"btc_usdt": "0.0001", "btcspartans_usdt": "0.0001", "ethspartans_usdt": "0.01"}
+SPECS = {"btc_usdt": "0.0001", "btcspartans_usdt": "0.0001", "ethspartans_usdt": "0.01",
+         "xauspartans_usdt": "0.001"}
 
 
 class Mock(BaseHTTPRequestHandler):
@@ -275,6 +276,65 @@ def main():
     settle(rc)
     check("執行中收到多則訊號：只補做最新的目標", calls[-1] == 3 and 2 not in calls and net() == 3, calls)
     ex.move_to = orig
+
+    # 多空分開（MT4／MT5 同步程式的鎖倉模式）
+    check("訊息：long 2 short 1 → (2, 1)",
+          tv.parse_signal({"symbol": "X_USDT", "long": 2, "short": 1})[1] == (2, 1))
+    check("訊息：long/short 乘 multiplier",
+          tv.parse_signal({"symbol": "X_USDT", "long": "4", "short": "2", "multiplier": 0.5})[1] == (2, 1))
+    xau = dict(base, symbol="XAUSPARTANS_USDT")
+    post(dict(xau, long="0.002", short="0.001", unit="coin"), xff=TVIP)
+    settle(rc)
+    longs = sum(int(x["positionSize"]) for x in S["positions"]
+                if x["symbol"] == "xauspartans_usdt" and x["positionSide"] == "LONG")
+    shorts = sum(int(x["positionSize"]) for x in S["positions"]
+                 if x["symbol"] == "xauspartans_usdt" and x["positionSide"] == "SHORT")
+    check("鎖倉：0.002／0.001 盎司換成多 2 張、空 1 張，同時持有", longs == 2 and shorts == 1, S["positions"])
+    n = len(S["created"])
+    post(dict(xau, long="0.002", short="0.001", unit="coin"), xff=TVIP)
+    settle(rc)
+    check("鎖倉：重送不重複下單", len(S["created"]) == n)
+    post(dict(xau, long=0, short=1), xff=TVIP)
+    settle(rc)
+    left = [(x["positionSide"], x["positionSize"]) for x in S["positions"] if x["symbol"] == "xauspartans_usdt"]
+    check("鎖倉：多單出場只平多，空單保留", left == [("SHORT", "1")], left)
+    post(dict(xau, long=0, short=0), xff=TVIP)
+    settle(rc)
+    check("鎖倉：全部出場", not [x for x in S["positions"] if x["symbol"] == "xauspartans_usdt"])
+    ex.max_qty = 2
+    post(dict(xau, long=3, short=0), xff=TVIP)
+    settle(rc)
+    check("鎖倉：任一邊超過持倉上限就不執行", "上限" in rc.history[-1].get("error", ""), rc.history[-1])
+    ex.max_qty = 0
+
+    # MT4／MT5 同步程式送出的原始訊息（與 mt/OneBullExSync.mq4 組出的字串相同）
+    MTIP = "198.51.100.7"
+    code, _ = post(None, xff=MTIP, raw=b'{"passphrase":"%s","symbol":"XAUSPARTANS_USDT","unit":"coin",'
+                   b'"multiplier":1.00000000,"source":"mt4","target":0.01000000}' % PASS.encode())
+    check("MT4 主機 IP 未加入允許清單時被拒（403）", code == 403)
+    rc.allowed_ips = set(tv.TRADINGVIEW_IPS) | {MTIP}
+    post(None, xff=MTIP, raw=b'{"passphrase":"%s","symbol":"XAUSPARTANS_USDT","unit":"coin",'
+         b'"multiplier":0.50000000,"source":"mt4","target":0.02000000}' % PASS.encode())
+    settle(rc)
+    xl = [(x["positionSide"], x["positionSize"]) for x in S["positions"] if x["symbol"] == "xauspartans_usdt"]
+    check("MT4 淨部位訊息：0.02 盎司 × 0.5 = 0.01 盎司 = 多 10 張", xl == [("LONG", "10")], xl)
+    post(None, xff=MTIP, raw=b'{"passphrase":"%s","symbol":"XAUSPARTANS_USDT","unit":"coin",'
+         b'"multiplier":1.00000000,"source":"mt5","long":0.01000000,"short":0.00500000}' % PASS.encode())
+    settle(rc)
+    xl = sorted((x["positionSide"], x["positionSize"]) for x in S["positions"] if x["symbol"] == "xauspartans_usdt")
+    check("MT5 鎖倉訊息：多 10 張、空 5 張", xl == [("LONG", "10"), ("SHORT", "5")], xl)
+    post(None, xff=MTIP, raw=b'{"passphrase":"%s","symbol":"XAUSPARTANS_USDT","unit":"coin",'
+         b'"multiplier":1.00000000,"source":"mt5","long":0.00000000,"short":0.00000000}' % PASS.encode())
+    settle(rc)
+    check("MT5 全部平倉後 OneBullEx 也空手", not [x for x in S["positions"] if x["symbol"] == "xauspartans_usdt"])
+    rc.allowed_ips = set(tv.TRADINGVIEW_IPS)
+
+    # 來源 IP 清單的 tradingview 關鍵字
+    os.environ["TV_ALLOWED_IPS"] = "tradingview, 203.0.113.5"
+    ips = tv.env_list("TV_ALLOWED_IPS", [])
+    check("TV_ALLOWED_IPS：tradingview 展開為官方 IP，再加上自訂 IP",
+          set(ips) == set(tv.TRADINGVIEW_IPS) | {"203.0.113.5"}, ips)
+    del os.environ["TV_ALLOWED_IPS"]
 
     passed = sum(RESULTS)
     print(f"\n{passed}/{len(RESULTS)} 項通過")

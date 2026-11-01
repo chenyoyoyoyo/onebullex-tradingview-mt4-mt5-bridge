@@ -4,6 +4,8 @@
 
 *Connect TradingView strategy / indicator alerts to your OneBullEx Spartans bot account through a small self-hosted webhook receiver. No third-party bot platform required.*
 
+**也支援 MT4／MT5**：在 MT 掛上同步程式 `OneBullExSync`，MT 上的持倉（手動或 EA）會自動同步到斯巴達機器人帳戶，見 [08-mt4-mt5](references/08-mt4-mt5.md)。
+
 ```
 TradingView 警報（webhook）
    │  HTTPS POST https://<你的主機>/webhook
@@ -61,6 +63,7 @@ sudo bash install.sh https       # 建立 Webhook URL（需先開放 80、443）
 | [05-go-live](references/05-go-live.md) | 試跑 → 正式下單 → 上線檢查清單 |
 | [06-quantity-and-risk](references/06-quantity-and-risk.md) | 張數、名目價值、槓桿、保證金模式、防呆設定 |
 | [07-operations](references/07-operations.md) | 日常維運指令與疑難排解 |
+| [08-mt4-mt5](references/08-mt4-mt5.md) | MT4／MT5 持倉同步（`mt/OneBullExSync.mq4`、`.mq5`） |
 
 斯巴達本身的規則（資金帳戶與合約帳戶、認購贖回、分潤）以官方倉庫為準：https://github.com/Onebullex-dev/spartan-strategy-partner-skill
 

@@ -33,6 +33,7 @@ TradingView 警報 ──HTTPS──▶ 使用者自己的 Linux 主機（Caddy 
 
 ## 流程（每一步確認成功才進下一步）
 
+0. **先問清楚**：使用者只貼了網址、沒說明需求時，先問：訊號來自 TradingView 還是 MT4／MT5？交易什麼商品？是否已經有裝好接收程式的主機？已有主機時，不要重新執行 `install.sh install`，也不要切換 `dryrun`／`live`（可能影響正在跑的其他策略），直接跳到需要的步驟。MT4／MT5 走下方「使用者用 MT4／MT5 時」。
 1. **確認前提**（`01`）：TradingView 付費方案且已開兩步驟驗證、OneBullEx 機器人 API key、策略在 TradingView 上能正常出訊號。問清楚策略的下單數量代表什麼（幣數、份數或固定張數），決定用 `04` 的哪個範本。
 2. **租主機**（`02`）：註冊、付款、建立主機、改防火牆由**使用者本人**操作，你逐步說明每個選項。完成條件：能 SSH 登入、有固定 IP、開放 22/80/443。
 3. **安裝**（`03`）：在主機終端機 `git clone` 本倉庫，`cd bridge && sudo bash install.sh install`。API Key 與 Secret 由使用者自己輸入。正式環境要請使用者把 `install.sh status` 顯示的 IP 提供給 OneBullEx 綁定白名單。

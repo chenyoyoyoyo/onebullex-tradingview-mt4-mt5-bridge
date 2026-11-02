@@ -1,5 +1,7 @@
 # OneBullEx TradingView Bridge
 
+> **給 AI 助手（Claude、ChatGPT、Codex 等）**：使用者只貼了這個網址時，請先讀 [`SKILL.md`](SKILL.md) 並照它的流程進行。第一步先問使用者：訊號來自 **TradingView** 還是 **MT4／MT5**？是否已經有裝好接收程式的主機？
+
 把 **TradingView 的策略或指標警報**直接接到你在 **OneBullEx 斯巴達（Spartans）的機器人帳戶**自動下單。不需要 FMZ 或其他付費的託管平台，只要一台自己的雲端主機。
 
 *Connect TradingView strategy / indicator alerts to your OneBullEx Spartans bot account through a small self-hosted webhook receiver. No third-party bot platform required.*

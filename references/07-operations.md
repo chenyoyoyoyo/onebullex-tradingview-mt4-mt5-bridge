@@ -1,9 +1,11 @@
 # 07 日常維運與疑難排解
 
-以下指令都在主機上執行，路徑以 `~/onebullex-tradingview-bridge/bridge` 為例：
+以下指令都在主機上執行，路徑以 `~/onebullex-tradingview-mt4-mt5-bridge/bridge` 為例：
+
+> 倉庫在 2026-11 從 `onebullex-tradingview-bridge` 改名為 `onebullex-tradingview-mt4-mt5-bridge`。改名前安裝的主機，資料夾仍是 `~/onebullex-tradingview-bridge`，指令裡的路徑照舊即可，`git pull` 會自動轉到新網址。
 
 ```bash
-cd ~/onebullex-tradingview-bridge/bridge
+cd ~/onebullex-tradingview-mt4-mt5-bridge/bridge
 ```
 
 ## 常用指令
@@ -11,7 +13,7 @@ cd ~/onebullex-tradingview-bridge/bridge
 | 要做的事 | 指令 |
 | --- | --- |
 | 最近的紀錄（印完就結束，建議先用這個） | `sudo bash install.sh recent`（或 `recent 200`） |
-| 較早版本沒有 `recent`／`spec` 時 | `sudo journalctl -u onebullex-tv -n 60 --no-pager`；`sudo python3 ~/onebullex-tradingview-bridge/bridge/obx_tool.py spec <交易對>` |
+| 較早版本沒有 `recent`／`spec` 時 | `sudo journalctl -u onebullex-tv -n 60 --no-pager`；`sudo python3 ~/onebullex-tradingview-mt4-mt5-bridge/bridge/obx_tool.py spec <交易對>` |
 | 即時紀錄（先點終端機，按 Control+C 離開） | `sudo bash install.sh logs` |
 | 查合約規格、1 張名目金額 | `sudo bash install.sh spec XAUSPARTANS_USDT` |
 | 狀態總覽、最近 20 則訊號、Webhook URL、主機 IP | `sudo bash install.sh status` |

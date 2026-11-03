@@ -5,8 +5,8 @@
 ## 1. 下載並安裝
 
 ```bash
-git clone https://github.com/chenyoyoyoyo/onebullex-tradingview-bridge ~/onebullex-tradingview-bridge
-cd ~/onebullex-tradingview-bridge/bridge
+git clone https://github.com/chenyoyoyoyo/onebullex-tradingview-mt4-mt5-bridge ~/onebullex-tradingview-mt4-mt5-bridge
+cd ~/onebullex-tradingview-mt4-mt5-bridge/bridge
 sudo bash install.sh install
 ```
 
@@ -67,7 +67,7 @@ https://203-0-113-10.sslip.io/webhook
 ## 更新程式
 
 ```bash
-cd ~/onebullex-tradingview-bridge && git pull && cd bridge && sudo bash install.sh install
+cd ~/onebullex-tradingview-mt4-mt5-bridge && git pull && cd bridge && sudo bash install.sh install
 ```
 
 設定（金鑰、passphrase、模式）會保留。

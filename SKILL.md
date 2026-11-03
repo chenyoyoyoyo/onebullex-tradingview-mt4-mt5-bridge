@@ -1,14 +1,16 @@
 ---
-name: onebullex-tradingview-bridge
+name: onebullex-tradingview-mt4-mt5-bridge
 description: Guide a trader through connecting TradingView strategy or indicator alerts, or MT4/MT5 positions, to their OneBullEx Spartans (斯巴達) bot account with a self-hosted webhook receiver — rent a Linux server, open ports 80/443, install the receiver and HTTPS, write the alert message or install the MT sync EA, dry-run, then go live. Use when the user mentions TradingView or MT4/MT5 + OneBullEx, Spartans/斯巴達 bot, webhook auto-trading or copy/sync to Spartans, or this repository.
 ---
 
-# OneBullEx TradingView Bridge — 給 AI 助手的操作指南
+# OneBullEx TradingView & MT4／MT5 Bridge — 給 AI 助手的操作指南
 
-你要協助使用者（策略方）把他在 TradingView 上的策略或指標警報，接到他在 OneBullEx 斯巴達（Spartans）的機器人帳戶自動下單。用使用者的語言回答。
+你要協助使用者（策略方）把他的交易訊號——TradingView 的策略或指標警報，**或** MT4／MT5 上的持倉（兩者擇一即可，也可以都用）——接到他在 OneBullEx 斯巴達（Spartans）的機器人帳戶自動下單。用使用者的語言回答。
 
 ```
-TradingView 警報 ──HTTPS──▶ 使用者自己的 Linux 主機（Caddy → bridge/tv_webhook.py）──▶ OneBullEx Open API V2
+TradingView 警報        ─┐
+                          ├─HTTPS──▶ 使用者自己的 Linux 主機（Caddy → bridge/tv_webhook.py）──▶ OneBullEx Open API V2
+MT4／MT5 同步程式（EA） ─┘
 ```
 
 訊號是**目標持倉**：每則警報說「現在應該持有多少張」，程式查實際持倉後補差額。重送不會重複下單。
@@ -33,7 +35,7 @@ TradingView 警報 ──HTTPS──▶ 使用者自己的 Linux 主機（Caddy 
 
 ## 流程（每一步確認成功才進下一步）
 
-0. **先問清楚，並隔離正式環境**：使用者只貼了網址、沒說明需求時，先問：
+0. **先問清楚，並隔離正式環境**：TradingView 和 MT4／MT5 是兩種**各自獨立**的訊號來源，使用者只用其中一種就好，不要要求他兩種都準備（只用 MT 的不需要 TradingView 帳號；只用 TradingView 的不需要 MT 或 Windows VPS）。使用者只貼了網址、沒說明需求時，先問：
    - 訊號來自 TradingView 還是 MT4／MT5？
    - 交易什麼商品？用 MT 時，同時問 **MT「市場報價」裡的商品名稱**（例如 `XAUUSD`、`XAUUSD.m`、`GOLD`）和**要同步到的 OneBullEx 交易對**（例如 `XAUSPARTANS_USDT`），兩個都要。
    - 是否已有裝好接收程式的主機？上面是否有**正在正式運行的策略**、用哪個機器人帳戶、交易哪些交易對？能不能動那台主機？

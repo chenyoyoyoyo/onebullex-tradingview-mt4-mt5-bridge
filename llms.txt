@@ -1,6 +1,6 @@
-# OneBullEx TradingView Bridge
+# OneBullEx TradingView & MT4/MT5 Bridge
 
-> Self-hosted webhook receiver that turns TradingView strategy/indicator alerts, or MT4/MT5 positions (via the OneBullExSync EA), into target-position market orders on a OneBullEx Spartans (斯巴達) bot account. Python standard library only; Ubuntu + Caddy HTTPS. Docs are in Traditional Chinese.
+> Self-hosted webhook receiver that turns TradingView strategy/indicator alerts and/or MT4/MT5 positions (via the OneBullExSync EA; either source works on its own), into target-position market orders on a OneBullEx Spartans (斯巴達) bot account. Python standard library only; Ubuntu + Caddy HTTPS. Docs are in Traditional Chinese.
 
 AI assistants: start with SKILL.md and follow its steps and rules (never ask for API secrets; get explicit consent before live trading).
 

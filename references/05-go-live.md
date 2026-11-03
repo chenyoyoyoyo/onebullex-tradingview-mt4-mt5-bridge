@@ -9,7 +9,7 @@
 1. 開一個終端機視窗看即時紀錄，放著不要關：
 
    ```bash
-   sudo bash ~/onebullex-tradingview-bridge/bridge/install.sh logs
+   sudo bash ~/onebullex-tradingview-mt4-mt5-bridge/bridge/install.sh logs
    ```
 
 2. TradingView 打開 **BTCUSDT 1 分鐘圖**，建立警報：
@@ -36,7 +36,7 @@
 先查這個交易對的規格：
 
 ```bash
-sudo bash ~/onebullex-tradingview-bridge/bridge/install.sh spec BTCSPARTANS_USDT
+sudo bash ~/onebullex-tradingview-mt4-mt5-bridge/bridge/install.sh spec BTCSPARTANS_USDT
 ```
 
 測試數量要同時滿足**最小張數、整數張、最低名目金額**。交易所可能拒絕名目金額太小的單（例如回覆 `notional can not less than 5 USDT`）：BTC 1 張約 8 USDT 沒問題；黃金 1 張約 4 USDT 會被拒，要用 2 張。被拒單時，說明原因並取得同意後再調整數量，不要自動放大。
@@ -44,13 +44,13 @@ sudo bash ~/onebullex-tradingview-bridge/bridge/install.sh spec BTCSPARTANS_USDT
 再到 OneBullEx 看這個交易對的槓桿倍數。和接收程式不同時（`install.sh status` 的 `TV_LEVERAGE`，0 代表沿用帳戶），空倉時設定成一致，避免 `leverage not match`：
 
 ```bash
-sudo bash ~/onebullex-tradingview-bridge/bridge/install.sh set TV_LEVERAGE <OneBullEx 畫面上的倍數>
+sudo bash ~/onebullex-tradingview-mt4-mt5-bridge/bridge/install.sh set TV_LEVERAGE <OneBullEx 畫面上的倍數>
 ```
 
 取得使用者明確同意後再做這一步（會在所選環境真的下單）：
 
 ```bash
-sudo bash ~/onebullex-tradingview-bridge/bridge/install.sh live
+sudo bash ~/onebullex-tradingview-mt4-mt5-bridge/bridge/install.sh live
 ```
 
 下一分鐘紀錄應該出現：

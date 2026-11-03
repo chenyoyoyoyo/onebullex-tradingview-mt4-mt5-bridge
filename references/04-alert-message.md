@@ -73,7 +73,7 @@
 | 黃金（斯巴達專屬） | `XAUSPARTANS_USDT` | 0.001 |
 | 一般交易對 | `BTC_USDT` 等 | 用 `sudo bash install.sh spec BTC_USDT` 查 |
 
-面值以交易所查詢結果為準：`sudo bash ~/onebullex-tradingview-bridge/bridge/install.sh spec BTCSPARTANS_USDT`（同時顯示 1 張名目金額；交易所可能拒絕低於最低名目金額的單）。
+面值以交易所查詢結果為準：`sudo bash ~/onebullex-tradingview-mt4-mt5-bridge/bridge/install.sh spec BTCSPARTANS_USDT`（同時顯示 1 張名目金額；交易所可能拒絕低於最低名目金額的單）。
 
 只想接受特定交易對（防止訊息打錯）：`sudo bash install.sh set TV_SYMBOLS BTCSPARTANS_USDT`（多個用逗號分隔）。
 

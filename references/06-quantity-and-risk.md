@@ -13,7 +13,7 @@ OneBullEx 下單單位是**整數張**。以 BTCSPARTANS_USDT（1 張 = 0.0001 B
 這只是單位示例，不是下單建議。面值以查詢為準：
 
 ```bash
-sudo bash ~/onebullex-tradingview-bridge/bridge/install.sh spec BTCSPARTANS_USDT
+sudo bash ~/onebullex-tradingview-mt4-mt5-bridge/bridge/install.sh spec BTCSPARTANS_USDT
 ```
 
 會顯示每張面值、最小張數、最高槓桿，以及以目前價格計算的 1 張名目金額。

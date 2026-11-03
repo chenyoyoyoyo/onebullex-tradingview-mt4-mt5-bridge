@@ -58,7 +58,7 @@ sudo bash tests/test_install.sh  # 11 項
 ## MT4 同步實測（2026-11-04，匿名摘要）
 
 - 證據：接收程式主機 SSH 日誌（`journalctl`）、MT4 編譯與設定截圖。
-- EA：`mt/OneBullExSync.mq4` 版本 1.00，SHA-256 `2d4b176bc65b41b8cb89dfa42500f32115216eac057832d867dc63d5b573209c`（自 commit `8999680` 起未變動）；MT4 build 未記錄。
+- EA：`mt/OneBullExSync.mq4` 版本 1.00，SHA-256 `2d4b176bc65b41b8cb89dfa42500f32115216eac057832d867dc63d5b573209c`（自 commit `8999680` 起未變動）。倉庫改名後，EA 檔內 `#property link` 仍是舊網址（GitHub 會自動轉址），刻意不修改，以保持與實測版本相同；MT4 build 未記錄。
 - 訊號來源：Mac 版 MT4（Wine），券商 MT4 Standard 模擬帳戶，手動下單，商品名稱 `GOLD`。
 - 接收程式：與 MT5 測試相同的專用測試主機與機器人帳戶，原本就是 LIVE，槓桿沿用 10 倍；沒有重裝或切換模式，也沒有另外做 MT4 試跑（先用空倉訊號核對，再取得同意小量實測）。測試前已移除 MT5 的同步程式，只有 MT4 送訊號。
 - 設定：`SymbolMap=GOLD=XAUSPARTANS_USDT`、`Multiplier=0.001`、`HedgeMode=false`、`MagicFilter=0`、`PollSeconds=1`、`ResendSeconds=60`。

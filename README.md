@@ -1,27 +1,34 @@
-# OneBullEx TradingView Bridge
+# OneBullEx TradingView & MT4／MT5 Bridge
 
 > **給 AI 助手（Claude、ChatGPT、Codex 等）**：使用者只貼了這個網址時，請先讀 [`SKILL.md`](SKILL.md) 並照它的流程進行。第一步先問使用者：訊號來自 **TradingView** 還是 **MT4／MT5**？是否已經有裝好接收程式的主機？
 
-把 **TradingView 的策略或指標警報**直接接到你在 **OneBullEx 斯巴達（Spartans）的機器人帳戶**自動下單。不需要 FMZ 或其他付費的託管平台，只要一台自己的雲端主機。
+把你的交易訊號直接接到 **OneBullEx 斯巴達（Spartans）機器人帳戶**自動下單。不需要 FMZ 或其他付費的託管平台，只要一台自己的雲端主機。
 
-*Connect TradingView strategy / indicator alerts to your OneBullEx Spartans bot account through a small self-hosted webhook receiver. No third-party bot platform required.*
+*Connect TradingView alerts and/or MT4/MT5 positions to your OneBullEx Spartans bot account through a small self-hosted receiver. No third-party bot platform required.*
 
-**也支援 MT4／MT5**：在 MT 掛上同步程式 `OneBullExSync`，MT 上的持倉（手動或 EA）會自動同步到斯巴達機器人帳戶，見 [08-mt4-mt5](references/08-mt4-mt5.md)。
+## 兩種訊號來源，擇一即可
+
+**TradingView 和 MT4／MT5 不需要兩個都有。** 只用其中一種就能完整運作：
+
+| 你的策略在 | 你需要的 | 不需要的 |
+| --- | --- | --- |
+| **只用 TradingView** | 接收程式主機 + TradingView 警報 | 不用安裝 MT4／MT5，也不用 Windows VPS |
+| **只用 MT4 或 MT5** | 接收程式主機 + MT 上掛同步程式 `OneBullExSync` | 不用 TradingView 帳號或付費方案 |
+| 兩種都用 | 同一台接收程式主機可以同時接收兩種 | — |
 
 ```
-TradingView 警報（webhook）
-   │  HTTPS POST https://<你的主機>/webhook
-   ▼
-Caddy（自動 HTTPS）→ 接收程式 tv_webhook.py
-   │  驗證 → 查實際持倉 → 補差額 → 確認成交 → 核對持倉
-   ▼
-OneBullEx 斯巴達機器人帳戶
+TradingView 警報（webhook） ─┐
+                             ├─ HTTPS ─▶ 你的主機：接收程式 ─▶ OneBullEx 斯巴達機器人帳戶
+MT4／MT5 同步程式（EA）     ─┘          驗證 → 查實際持倉 → 補差額 → 確認成交 → 核對持倉
 ```
+
+- TradingView：見 [04 建立警報](references/04-alert-message.md)、[05 試跑與上線](references/05-go-live.md)。
+- MT4／MT5：見 [08 MT4／MT5 同步](references/08-mt4-mt5.md)。
 
 ## 特色
 
-- **目標持倉**：每則警報說「現在應該持有多少張」，程式查實際持倉後只補差額。TradingView 重送不會重複下單，漏掉一則也會在下一則自動對齊。
-- **安全**：只接受 TradingView 官方 IP 和正確的 passphrase；API key 只存在你自己的主機。
+- **目標持倉**：每則訊號說「現在應該持有多少張」，程式查實際持倉後只補差額。重送不會重複下單，漏掉一則也會在下一則自動對齊。
+- **安全**：只接受允許的來源 IP（TradingView 官方 IP、你的 MT 主機 IP）和正確的 passphrase；API key 只存在你自己的主機。
 - **先試跑**：安裝後預設只記錄要下的單，確認無誤才切換成正式下單。
 - **簡單**：只用 Python 標準函式庫；一支安裝腳本完成安裝、HTTPS、切換模式、換金鑰。
 - **費用**：只有一台雲端主機（例如 AWS Lightsail 最低方案，每月約 5 美元）。
@@ -30,9 +37,10 @@ OneBullEx 斯巴達機器人帳戶
 
 | 項目 | 說明 |
 | --- | --- |
-| TradingView 付費方案 | 免費方案不能用 webhook；帳號要開啟**兩步驟驗證**才能填 Webhook URL |
-| OneBullEx 斯巴達機器人 API key | 向 OneBullEx 申請；有提供 IP 綁定時建議綁主機的固定 IP |
-| 一台 Linux 雲端主機 | Ubuntu 22.04／24.04、固定 IP、防火牆開放 22、80、443 |
+| 一台 Linux 雲端主機 | Ubuntu 22.04／24.04、固定 IP、防火牆開放 22、80、443（兩種來源都需要） |
+| OneBullEx 斯巴達機器人 API key | 向 OneBullEx 申請；有提供 IP 綁定時建議綁主機的固定 IP（兩種來源都需要） |
+| 只用 TradingView 時 | TradingView 付費方案；帳號要開啟**兩步驟驗證**才能填 Webhook URL |
+| 只用 MT4／MT5 時 | 24 小時開著的 MT（建議 Windows VPS）；交易商品在斯巴達有對應合約（黃金、BTC、ETH） |
 
 ## 用 AI 助手帶你設定（建議）
 
@@ -40,7 +48,7 @@ OneBullEx 斯巴達機器人帳戶
 
 ```
 請先讀這個 repo 的 README.md 和 SKILL.md，照 SKILL.md 的流程一步步帶我設定：
-https://github.com/chenyoyoyoyo/onebullex-tradingview-bridge
+https://github.com/chenyoyoyoyo/onebullex-tradingview-mt4-mt5-bridge
 
 我是 OneBullEx 斯巴達的策略方，不是開發者，不要修改程式碼。
 我想讓我的交易訊號自動在我的斯巴達機器人帳戶下單。
@@ -54,8 +62,8 @@ AI 會先問你訊號來源（TradingView 或 MT4／MT5）、交易商品，以�
 
 ```bash
 # 在主機上（SSH 登入後）
-git clone https://github.com/chenyoyoyoyo/onebullex-tradingview-bridge ~/onebullex-tradingview-bridge
-cd ~/onebullex-tradingview-bridge/bridge
+git clone https://github.com/chenyoyoyoyo/onebullex-tradingview-mt4-mt5-bridge ~/onebullex-tradingview-mt4-mt5-bridge
+cd ~/onebullex-tradingview-mt4-mt5-bridge/bridge
 sudo bash install.sh install     # 輸入環境、API Key、Secret；畫面會顯示 passphrase
 sudo bash install.sh https       # 建立 Webhook URL（需先開放 80、443）
 ```

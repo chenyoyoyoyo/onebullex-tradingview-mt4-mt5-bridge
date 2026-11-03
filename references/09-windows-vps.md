@@ -1,21 +1,17 @@
-# 09 MT 主機：租用與連線 Windows VPS
+# 09 選配：用 Windows VPS 讓 MT 24 小時運行
 
-只有 **MT4／MT5 用戶**需要這一份。只用 TradingView 的不需要。
+只有 **MT4／MT5 用戶**、而且想讓 MT 24 小時穩定運行時才需要。**不是必要條件**：MT 跑在你自己的電腦（Windows 或 Mac）也能同步，本專案的 MT4、MT5 實測就是在 Mac 上完成的。只用 TradingView 的完全不需要。
 
-## 先分清楚：MT 用戶要兩台主機
+## 什麼時候需要
 
-| | 接收程式主機 | MT 主機 |
+| 跑 MT 的地方 | 適合 | 要注意 |
 | --- | --- | --- |
-| 作業系統 | **Linux**（Ubuntu） | **Windows** |
-| 用途 | 跑接收程式，收到訊號後在斯巴達下單 | 跑 MT4／MT5、你的策略 EA 和同步程式 `OneBullExSync` |
-| 誰需要 | 所有人 | 只有 MT4／MT5 用戶 |
-| 怎麼準備 | [02](02-server-setup.md)、[03](03-install.md) | 本文件 |
+| 自己的電腦（Windows／Mac） | 測試、或你本來就讓電腦一直開著 | 睡眠、關機、斷網、更新重開都會中斷同步；家用網路 IP 可能會變（要更新接收程式的來源 IP 允許清單） |
+| Windows VPS（本文件） | 長期 24 小時運行 | 每月費用；要學會用遠端桌面操作 |
 
-兩台**不能合併，也不能互換**：MT4／MT5 是 Windows 程式；接收程式是為 Linux 寫的，不能裝在 Windows 上。
+不論 MT 跑在哪裡，**接收程式主機（Linux）都還是需要**，兩者是不同用途的主機：接收程式只能裝在 Linux，MT4／MT5 是 Windows 程式（Mac 版是包了一層相容層）。
 
-自己有一台 24 小時開機、不睡眠的 Windows 電腦，也可以當 MT 主機，但家用網路的 IP 可能會變（見 [08](08-mt4-mt5.md) 的 403 排錯），停電、更新重開機也會中斷同步。
-
-> **用 Mac 也沒關係。** VPS 是雲端上一台獨立的電腦，你只是從自己的電腦遠端操作它的畫面，所以 Mac、Windows、手機都能連。MT 裝在 VPS 裡，Mac 上不需要裝任何 Windows 程式。
+> **用 Mac 也能租 Windows VPS。** VPS 是雲端上一台獨立的電腦，你只是從自己的電腦遠端操作它的畫面，Mac 上不需要裝任何 Windows 程式。
 
 ## 規格
 
@@ -63,7 +59,7 @@
 
 1. **安裝 MT**：用 VPS 裡的瀏覽器（Edge）到**你的券商官網**下載 MT4／MT5 安裝檔。用券商提供的安裝檔，伺服器清單會比較完整。安裝後登入交易帳戶，確認真的連線（[08](08-mt4-mt5.md)「登入並確認連線」）。
 2. **確認對外 IP**：在 VPS 的瀏覽器打開 https://checkip.amazonaws.com ，顯示的應該是剛才綁定的固定 IP。
-3. **加入白名單**：在**接收程式主機**（Linux）執行：
+3. **加入接收程式的來源 IP 允許清單**：在**接收程式主機**（Linux）執行：
 
    ```bash
    sudo bash ~/onebullex-tradingview-mt4-mt5-bridge/bridge/install.sh set TV_ALLOWED_IPS tradingview,<Windows VPS 的固定 IP>

@@ -13,7 +13,7 @@
 | 你的策略在 | 你需要的 | 不需要的 |
 | --- | --- | --- |
 | **只用 TradingView** | 接收程式主機 + TradingView 警報 | 不用安裝 MT4／MT5，也不用 Windows VPS |
-| **只用 MT4 或 MT5** | 接收程式主機 + MT 主機（Windows）上掛同步程式 `OneBullExSync` | 不用 TradingView 帳號或付費方案 |
+| **只用 MT4 或 MT5** | 接收程式主機 + 在你跑 MT 的電腦上掛同步程式 `OneBullExSync` | 不用 TradingView 帳號或付費方案 |
 | 兩種都用 | 同一台接收程式主機可以同時接收兩種 | — |
 
 ```
@@ -25,15 +25,15 @@ MT4／MT5 同步程式（EA）     ─┘          驗證 → 查實際持倉 �
 - TradingView：見 [04 建立警報](references/04-alert-message.md)、[05 試跑與上線](references/05-go-live.md)。
 - MT4／MT5：見 [08 MT4／MT5 同步](references/08-mt4-mt5.md)、[09 Windows VPS](references/09-windows-vps.md)。
 
-### MT4／MT5 用戶要準備兩台不同用途的主機
+### MT4／MT5 用戶：接收程式主機 + 一台跑 MT 的電腦
 
-| | 接收程式主機 | MT 主機 |
+| | 接收程式主機 | 跑 MT 的電腦 |
 | --- | --- | --- |
-| 作業系統 | **Linux**（Ubuntu） | **Windows** |
-| 用途 | 收訊號、在斯巴達下單 | 24 小時開著 MT4／MT5、策略 EA 與同步程式 |
-| 誰需要 | 所有人（TradingView 用戶只要這台） | 只有 MT4／MT5 用戶 |
+| 是什麼 | **Linux 雲端主機**（Ubuntu） | **你自己的電腦就可以**（Windows 或 Mac，Mac 已實測），或選擇租 Windows VPS |
+| 用途 | 收訊號、在斯巴達下單 | 開著 MT4／MT5、策略 EA 與同步程式 |
+| 必要嗎 | 所有人都要（TradingView 用戶只要這台） | MT 用戶要；條件是 MT 要一直開著、連著網 |
 
-兩台不能合併或互換：MT4／MT5 是 Windows 程式，接收程式只能裝在 Linux。自己的電腦是 Mac 也沒關係，VPS 是用遠端桌面操作的。
+接收程式只能裝在 Linux，不能裝在跑 MT 的電腦上。想讓 MT 24 小時穩定運行、不想讓自己的電腦一直開著時，可以另外租 Windows VPS（選配，見 [09](references/09-windows-vps.md)）。
 
 ## 特色
 
@@ -50,7 +50,7 @@ MT4／MT5 同步程式（EA）     ─┘          驗證 → 查實際持倉 �
 | 一台 Linux 雲端主機 | Ubuntu 22.04／24.04、固定 IP、防火牆開放 22、80、443（兩種來源都需要） |
 | OneBullEx 斯巴達機器人 API key | 向 OneBullEx 申請；有提供 IP 綁定時建議綁主機的固定 IP（兩種來源都需要） |
 | 只用 TradingView 時 | TradingView 付費方案；帳號要開啟**兩步驟驗證**才能填 Webhook URL |
-| 只用 MT4／MT5 時 | 另一台 **Windows** 主機讓 MT 24 小時開著（建議 Windows VPS，見 [09](references/09-windows-vps.md)）；交易商品在斯巴達有對應合約（黃金、BTC、ETH） |
+| 只用 MT4／MT5 時 | 一台開著 MT 的電腦（自己的 Windows／Mac 即可；想 24 小時穩定運行可選擇租 Windows VPS，見 [09](references/09-windows-vps.md)）；交易商品在斯巴達有對應合約（黃金、BTC、ETH） |
 
 ## 用 AI 助手帶你設定（建議）
 
@@ -98,7 +98,7 @@ sudo bash install.sh https       # 建立 Webhook URL（需先開放 80、443）
 | [06-quantity-and-risk](references/06-quantity-and-risk.md) | 張數、名目價值、槓桿、保證金模式、防呆設定 |
 | [07-operations](references/07-operations.md) | 日常維運指令與疑難排解 |
 | [08-mt4-mt5](references/08-mt4-mt5.md) | MT4／MT5 持倉同步（`mt/OneBullExSync.mq4`、`.mq5`） |
-| [09-windows-vps](references/09-windows-vps.md) | MT 主機：租用與連線 Windows VPS、在裡面安裝 MT、重開後自動恢復 |
+| [09-windows-vps](references/09-windows-vps.md) | 選配：租 Windows VPS 讓 MT 24 小時運行、遠端連線、重開後自動恢復 |
 
 斯巴達本身的規則（資金帳戶與合約帳戶、認購贖回、分潤）以官方倉庫為準：https://github.com/Onebullex-dev/spartan-strategy-partner-skill
 

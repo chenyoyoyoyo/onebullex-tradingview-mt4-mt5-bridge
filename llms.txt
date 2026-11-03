@@ -13,7 +13,7 @@ AI assistants: start with SKILL.md and follow its steps and rules (never ask for
 - [references/05-go-live.md](references/05-go-live.md): test alert, dry run, first live order, checklist
 - [references/06-quantity-and-risk.md](references/06-quantity-and-risk.md): contracts, notional, leverage, margin mode, safeguards
 - [references/07-operations.md](references/07-operations.md): maintenance commands and troubleshooting
-- [references/09-windows-vps.md](references/09-windows-vps.md): Windows VPS for the MT terminal (separate from the Linux receiver host), RDP from Mac, auto-restart
+- [references/09-windows-vps.md](references/09-windows-vps.md): optional Windows VPS to keep MT running 24/7 (MT can also run on the user's own Windows/Mac computer), RDP, auto-restart
 - [references/08-mt4-mt5.md](references/08-mt4-mt5.md): MT4/MT5 position sync EA: IPs, Mac Wine folder, WebRequest, inputs, spec-based multiplier, min notional, hedge mode
 
 ## Code

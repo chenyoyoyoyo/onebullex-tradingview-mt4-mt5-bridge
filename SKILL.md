@@ -29,6 +29,7 @@ MT4／MT5 同步程式（EA） ─┘
 | `references/06-quantity-and-risk.md` | 張數、名目價值、槓桿、全倉／逐倉、防呆 |
 | `references/07-operations.md` | 維運指令、紀錄解讀、疑難排解 |
 | `references/08-mt4-mt5.md` | MT4／MT5 同步程式：三種 IP、Mac Wine 資料夾、編譯、WebRequest 設定位置、掛 EA 與參數、規格與倍數、最低名目金額、鎖倉、停止同步 |
+| `references/09-windows-vps.md` | MT 主機：Linux 與 Windows 兩台主機的分工、租用 Windows VPS、遠端桌面連線、在 VPS 安裝 MT 與同步程式、重開後恢復 |
 | `docs/VALIDATION.md` | 已驗證的範圍；不得把未驗證項目說成已驗證 |
 
 斯巴達本身的規則（資金帳戶與合約帳戶、認購贖回、分潤）以官方倉庫為準：https://github.com/Onebullex-dev/spartan-strategy-partner-skill
@@ -75,7 +76,8 @@ MT4／MT5 同步程式（EA） ─┘
 
 依 `references/08-mt4-mt5.md`（介面名稱對照、路徑、排錯都在那裡），一次只帶一個畫面，不要跳步：
 
-1. **商品**：確認交易的商品在 OneBullEx 有對應合約（黃金、BTC、ETH）；外匯、指數等不能同步，要先說清楚。用手機 App 下單的，說明手機不能跑 EA，要另外有 VPS／電腦的 MT 登入同一帳戶掛同步程式。
+1. **兩台主機**：先說清楚 MT 用戶需要**兩台不同用途的主機**——Linux 的接收程式主機（所有人都要）和讓 MT 24 小時開著的 Windows 主機（建議 Windows VPS，見 `09`）。兩台不能合併；使用者是 Mac 也能用遠端桌面操作 Windows VPS。只是測試時，MT 可以先裝在使用者自己的電腦。
+   **商品**：確認交易的商品在 OneBullEx 有對應合約（黃金、BTC、ETH）；外匯、指數等不能同步，要先說清楚。用手機 App 下單的，說明手機不能跑 EA，要另外有 VPS／電腦的 MT 登入同一帳戶掛同步程式。
 2. **主機**：依步驟 0 的分支處理，提醒使用者準備好 passphrase（忘記時讓他自己用 `sudo grep '^TV_PASSPHRASE=' /etc/onebullex-tv.env` 查，不要叫他重設）。
 3. **MT 帳戶並確認真的登入**：測試時 MT5 可用內建 MetaQuotes-Demo；MT4 要到券商開模擬帳戶，選帳戶指定的伺服器，用 MT 交易密碼（不一定等於會員網站密碼）。**標題列有帳號不代表登入成功**：要看到右下角不是「帳戶無效」、「新交易單」可以按、報價在跳動。提醒：MT 是模擬帳戶，不代表 OneBullEx 也是模擬。
 4. **來源 IP**：查 MT 所在電腦的對外 IP，在**接收程式主機**執行 `install.sh set TV_ALLOWED_IPS tradingview,<IP>`。出現 `HTTP 403` 時先看紀錄裡被拒的 IP 再更新，不要直接取消白名單。
@@ -86,7 +88,7 @@ MT4／MT5 同步程式（EA） ─┘
 9. **其他參數**：`HedgeMode`；`MagicFilter`（`-1` 全部、`0` 只同步手動單、其他數字只同步該 EA）；`LockAccount`。
 10. **試跑再 LIVE**：掛上時會立刻同步現有持倉。確認兩端空倉、只有一個 MT 在同步這個交易對、槓桿與 OneBullEx 一致。LIVE 測試由使用者自己在 MT 下單；建議依 08 的順序測：開多 → 平倉 → 開空 → 部分平倉（對原持倉平部分，不是另開反向單）→ 全部平倉，每步都確認成交、淨部位與重送不加倉。
 11. **結束時說清楚狀態**：目前是試跑還是 LIVE、EA 是否仍掛著、哪些情境已驗證。MT 平倉 → 確認 OneBullEx 歸零 → 再移除 EA 或切模式；不要在 OneBullEx 手動平倉。
-12. **MT 要一直開著**：Mac 睡眠、斷網、MT 關閉時不會同步；正式使用建議放在 Windows VPS。
+12. **MT 要一直開著**：Mac 睡眠、斷網、MT 關閉時不會同步；正式使用建議放在 Windows VPS，照 `references/09-windows-vps.md` 帶使用者租用、用遠端桌面連線、在裡面安裝 MT，並提醒離開時「中斷連線」而不是「登出」。
 
 ## 警報訊息：一定要替使用者寫好，並明確要他換掉預設文字
 

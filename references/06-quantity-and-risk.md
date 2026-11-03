@@ -10,7 +10,17 @@ OneBullEx 下單單位是**整數張**。以 BTCSPARTANS_USDT（1 張 = 0.0001 B
 | 10 | 0.001 | 約 80 USDT |
 | 100 | 0.01 | 約 800 USDT |
 
-這只是單位示例，不是下單建議。面值以 `obx_tool.py spec <交易對>` 查詢為準。
+這只是單位示例，不是下單建議。面值以查詢為準：
+
+```bash
+sudo bash ~/onebullex-tradingview-bridge/bridge/install.sh spec BTCSPARTANS_USDT
+```
+
+會顯示每張面值、最小張數、最高槓桿，以及以目前價格計算的 1 張名目金額。
+
+## 最低名目金額
+
+除了最小張數，交易所可能要求每筆單的名目金額（張數 × 面值 × 價格）高於下限，例如回覆 `notional can not less than 5 USDT`。黃金 1 張（0.001 盎司）約 4 USDT 會被拒，2 張才會成交。槓桿不會改變名目金額，所以提高槓桿不能解決這個錯誤。
 
 ## 調整每單大小
 
@@ -28,8 +38,9 @@ OneBullEx 下單單位是**整數張**。以 BTCSPARTANS_USDT（1 張 = 0.0001 B
 
 - 預設 `TV_LEVERAGE=0`：沿用 OneBullEx 帳戶上該交易對的槓桿設定。
 - 固定槓桿：`sudo bash install.sh set TV_LEVERAGE 10`，之後每次開倉前會設定成 10 倍。
-- 設定值超過該交易對的最高槓桿時，開倉會失敗並記錄錯誤；最高槓桿用 `obx_tool.py spec` 查。
-- **在空倉時改**：已有持倉時改槓桿，交易所可能回 `order_leverage_not_match_position_leverage`。
+- 設定值超過該交易對的最高槓桿時，開倉會失敗並記錄錯誤；最高槓桿用 `install.sh spec` 查。
+- **和 OneBullEx 畫面一致**：出現 `leverage not match` 時，把 `TV_LEVERAGE` 設成 OneBullEx 上該交易對顯示的倍數。空倉時也可能發生，不一定是因為有持倉。
+- **在空倉時改**。
 
 ## 保證金模式：先確認是全倉還是逐倉
 

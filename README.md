@@ -31,12 +31,26 @@ OneBullEx 斯巴達機器人帳戶
 | 項目 | 說明 |
 | --- | --- |
 | TradingView 付費方案 | 免費方案不能用 webhook；帳號要開啟**兩步驟驗證**才能填 Webhook URL |
-| OneBullEx 斯巴達機器人 API key | 向 OneBullEx 申請；正式環境的 key 要綁定主機的固定 IP |
+| OneBullEx 斯巴達機器人 API key | 向 OneBullEx 申請；有提供 IP 綁定時建議綁主機的固定 IP |
 | 一台 Linux 雲端主機 | Ubuntu 22.04／24.04、固定 IP、防火牆開放 22、80、443 |
+
+## 用 AI 助手帶你設定（建議）
+
+把下面這段**整段**貼給你的 AI 助手（Claude、ChatGPT、Codex 等）。只貼網址的話，AI 常常不會主動讀文件：
+
+```
+請先讀這個 repo 的 README.md 和 SKILL.md，照 SKILL.md 的流程一步步帶我設定：
+https://github.com/chenyoyoyoyo/onebullex-tradingview-bridge
+
+我是 OneBullEx 斯巴達的策略方，不是開發者，不要修改程式碼。
+我想讓我的交易訊號自動在我的斯巴達機器人帳戶下單。
+```
+
+AI 會先問你訊號來源（TradingView 或 MT4／MT5）、交易商品，以及有沒有主機。API Secret、passphrase、SSH 私鑰不要貼給 AI。
 
 ## 快速開始
 
-完整步驟見 [`references/`](references/)，也可以把這個 repo 的網址貼給你的 AI 助手（Claude、ChatGPT、Codex 等），請它依照 [`SKILL.md`](SKILL.md) 一步步帶你完成。
+完整步驟見 [`references/`](references/)。
 
 ```bash
 # 在主機上（SSH 登入後）

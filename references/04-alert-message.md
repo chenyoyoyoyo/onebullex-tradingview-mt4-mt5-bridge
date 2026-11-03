@@ -71,9 +71,9 @@
 | BTC（斯巴達專屬） | `BTCSPARTANS_USDT` | 0.0001 BTC |
 | ETH（斯巴達專屬） | `ETHSPARTANS_USDT` | 0.01 ETH |
 | 黃金（斯巴達專屬） | `XAUSPARTANS_USDT` | 0.001 |
-| 一般交易對 | `BTC_USDT` 等 | 用 `python3 obx_tool.py spec BTC_USDT` 查 |
+| 一般交易對 | `BTC_USDT` 等 | 用 `sudo bash install.sh spec BTC_USDT` 查 |
 
-面值以交易所查詢結果為準：`python3 ~/onebullex-tradingview-bridge/bridge/obx_tool.py spec BTCSPARTANS_USDT`。
+面值以交易所查詢結果為準：`sudo bash ~/onebullex-tradingview-bridge/bridge/install.sh spec BTCSPARTANS_USDT`（同時顯示 1 張名目金額；交易所可能拒絕低於最低名目金額的單）。
 
 只想接受特定交易對（防止訊息打錯）：`sudo bash install.sh set TV_SYMBOLS BTCSPARTANS_USDT`（多個用逗號分隔）。
 

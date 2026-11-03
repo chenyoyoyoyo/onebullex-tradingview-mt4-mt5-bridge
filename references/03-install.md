@@ -27,15 +27,17 @@ sudo bash install.sh install
 
 > API Key、Secret 由使用者自己在終端機輸入。不要貼進 AI 對話。
 
-## 2. 綁定 IP（正式環境）
-
-正式環境的 API key 必須綁定主機的對外 IP：
+## 2. 確認金鑰可用
 
 ```bash
-sudo bash install.sh status
+sudo bash install.sh balance
 ```
 
-最後一行是主機對外 IP，提供給 OneBullEx 綁定白名單。沒綁定時，下單會出現 `not-at-white-list`。
+顯示資金帳戶、合約帳戶餘額與持倉，就代表這組 API key 可以從這台主機使用，不用另外處理。
+
+斯巴達機器人的 API key 不一定要綁 IP。只有出現 `not-at-white-list` 時，代表這組 key 有綁 IP、但不是這台主機：執行 `sudo bash install.sh status`，最後一行是主機對外 IP，把它綁到 key 上（OneBullEx 提供綁定選項時，建議都綁上這台主機的固定 IP）。
+
+讀得到餘額只代表金鑰可用；能不能下單，要到 [05](05-go-live.md) 小量 LIVE 成交後才算確認。
 
 ## 3. 建立 HTTPS 網址
 

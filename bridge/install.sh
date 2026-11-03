@@ -5,12 +5,14 @@
 #   sudo bash install.sh https [網域]       安裝 Caddy，建立 TradingView 用的 HTTPS 網址（預設 <IP>.sslip.io）
 #   sudo bash install.sh status             服務狀態、目前設定、最近訊號、Webhook URL、主機對外 IP
 #   sudo bash install.sh logs               即時紀錄（Ctrl+C 離開）
+#   sudo bash install.sh recent [筆數]      最近的紀錄（預設 60 筆，不會停在畫面上）
 #   sudo bash install.sh dryrun             切換為試跑：只記錄要下的單，不送出
 #   sudo bash install.sh live               切換為正式下單
 #   sudo bash install.sh secret             重新輸入 API Key 與 Secret
 #   sudo bash install.sh passphrase         產生新的 passphrase（之後要更新 TradingView 警報訊息）
 #   sudo bash install.sh set <設定> <值>    修改選用設定：TV_LEVERAGE、TV_MAX_QTY、TV_SYMBOLS、TV_ALLOWED_IPS
 #   sudo bash install.sh balance            查帳戶餘額與持倉
+#   sudo bash install.sh spec <交易對>      查合約規格（每張面值、最小張數、最高槓桿、1 張名目金額）
 #   sudo bash install.sh uninstall          停止並移除服務（保留設定檔）
 #
 # 雲端防火牆需開放 80（申請 HTTPS 憑證）與 443（接收 TradingView 訊號），SSH（22）照舊。
@@ -228,7 +230,7 @@ show_status() {
     say "Webhook URL"
     webhook_url
   fi
-  say "本機對外 IP（綁定 API key 白名單用）/ Public IP for API key whitelist"
+  say "本機對外 IP（API key 有綁 IP 時使用）/ Public IP (for API keys bound to an IP)"
   public_ip || echo "查詢失敗 / failed"; echo
 }
 
@@ -262,7 +264,8 @@ case "${1:-}" in
   install)    install_tv ;;
   https)      install_https "${2:-}" ;;
   status)     show_status ;;
-  logs)       journalctl -u "$TV_SVC" -f ;;
+  logs)       echo "（即時紀錄；離開請按 Control+C，不是 Command+C）"; journalctl -u "$TV_SVC" -f ;;
+  recent)     n="${2:-60}"; [[ "$n" =~ ^[0-9]+$ ]] || n=60; journalctl -u "$TV_SVC" -n "$n" --no-pager -o cat ;;
   dryrun)     set_mode dryrun ;;
   live)       set_mode live ;;
   secret)     need_root secret; need_env; ask_keys; restart_tv ;;
@@ -271,9 +274,11 @@ case "${1:-}" in
               echo "$p"; restart_tv ;;
   set)        set_option "${2:-}" "${3:-}" ;;
   balance)    need_root balance; need_env; python3 "$APP_DIR/obx_tool.py" balance ;;
+  spec)       need_root spec; need_env; [ -n "${2:-}" ] || die "用法 / Usage: sudo bash $0 spec XAUSPARTANS_USDT"
+              python3 "$APP_DIR/obx_tool.py" spec "$2" ;;
   uninstall)  need_root uninstall
               systemctl disable --now "$TV_SVC" 2>/dev/null || true
               rm -f "/etc/systemd/system/${TV_SVC}.service"; systemctl daemon-reload
               say "已移除服務，設定檔保留在 $TV_ENV / Service removed, settings kept" ;;
-  *) sed -n '2,16p' "$0"; exit 1 ;;
+  *) sed -n '2,18p' "$0"; exit 1 ;;
 esac

@@ -52,6 +52,8 @@ class Mock(BaseHTTPRequestHandler):
             return self.reply(list(SPECS))
         if path == "/v2/public/symbol/detail":
             return self.reply({"symbol": p["symbol"], "contractSize": SPECS[p["symbol"]], "minQty": "1"})
+        if path == "/v2/public/q/agg-ticker":
+            return self.reply({"s": p["symbol"], "c": "3950"})
         if path == "/v2/position/list":
             return self.reply([x for x in S["positions"] if x["symbol"] == p.get("symbol", x["symbol"])])
         if path == "/v2/position/confs":
@@ -328,6 +330,19 @@ def main():
     settle(rc)
     check("MT5 全部平倉後 OneBullEx 也空手", not [x for x in S["positions"] if x["symbol"] == "xauspartans_usdt"])
     rc.allowed_ips = set(tv.TRADINGVIEW_IPS)
+
+    # 紀錄與規格查詢
+    check("紀錄說明帶出倍數", "×0.5" in tv.parse_signal({"symbol": "X_USDT", "target": 4, "multiplier": 0.5})[3])
+    check("最低名目金額錯誤附上提示", "名目金額" in tv.with_hint("OneBullEx 錯誤：notional can not less than 5 USDT"))
+    check("槓桿不符錯誤附上提示", "TV_LEVERAGE" in tv.with_hint("OneBullEx 錯誤：order_leverage not match position leverage"))
+    import io
+    import contextlib
+    import obx_tool
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        obx_tool.spec(client, "XAUSPARTANS_USDT")
+    out = buf.getvalue()
+    check("spec 顯示 1 張名目金額（0.001 × 3950 = 3.95）", "3.95 USDT" in out, out)
 
     # 來源 IP 清單的 tradingview 關鍵字
     os.environ["TV_ALLOWED_IPS"] = "tradingview, 203.0.113.5"

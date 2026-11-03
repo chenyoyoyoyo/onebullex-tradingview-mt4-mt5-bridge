@@ -26,7 +26,7 @@ ENV_FILE = "/etc/onebullex-tv.env"
 PUBLIC_CMDS = ("symbols", "spec")
 
 
-def load_env_file():
+def load_env_file(need_key=True):
     """環境變數沒有金鑰時，讀接收程式的設定檔（只補沒設定的值）。"""
     if os.environ.get("OBX_API_KEY") or not os.path.exists(ENV_FILE):
         return
@@ -38,11 +38,13 @@ def load_env_file():
                     k, v = line.split("=", 1)
                     os.environ.setdefault(k.strip(), v.strip())
     except PermissionError:
-        sys.exit(f"讀不到 {ENV_FILE}，請用 sudo 執行")
+        if need_key or not os.environ.get("OBX_ENV"):
+            sys.exit(f"讀不到 {ENV_FILE}（需要 sudo）。請改用：sudo bash install.sh "
+                     + " ".join(sys.argv[1:]))
 
 
 def client(need_key=True):
-    load_env_file()
+    load_env_file(need_key)
     key, secret = os.environ.get("OBX_API_KEY"), os.environ.get("OBX_SECRET")
     if need_key and (not key or not secret):
         sys.exit("請先設定 OBX_API_KEY 和 OBX_SECRET")
@@ -70,6 +72,7 @@ def spec(c, name):
     d = c.request("GET", "/v2/public/symbol/detail", {"symbol": sym}) or {}
     keys = ("contractSize", "minQty", "quantityPrecision", "pricePrecision", "minStepPrice",
             "maxLeverage", "supportPositionType")
+    keys += tuple(k for k in d if "notional" in k.lower() and k not in keys)
     print(f"交易所名稱：{sym}｜警報訊息的 symbol 寫：{display_symbol(sym)}")
     for k in keys:
         if k in d:
@@ -77,6 +80,14 @@ def spec(c, name):
     cs = float(d.get("contractSize") or 0)
     if cs:
         print(f"  → 1 張 = {cs:g} 個{display_symbol(sym).split('_')[0]}；警報訊息的 qty／target 是張數")
+        try:
+            t = c.request("GET", "/v2/public/q/agg-ticker", {"symbol": sym, "timeRangeType": "H24"}) or {}
+            px = float(t.get("c") or 0)
+        except (ApiError, TypeError, ValueError):
+            px = 0
+        if px:
+            print(f"  → 目前價格約 {px:g}，1 張名目金額約 {cs * px:.2f} USDT"
+                  "（交易所可能有最低名目金額，例如低於 5 USDT 會被拒單）")
 
 
 def leverage(c, name, lev):

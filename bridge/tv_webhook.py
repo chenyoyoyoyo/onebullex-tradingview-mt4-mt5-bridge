@@ -54,8 +54,10 @@ POLL_INTERVAL = 0.5
 # 常見交易所錯誤的處理提示（附在紀錄後面）
 HINTS = {
     "code-sign-not-match": "API Secret 與 Key 不是同一組，或輸入不完整；重新輸入：sudo bash install.sh secret",
-    "not-at-white-list": "API key 尚未綁定這台主機的對外 IP；查 IP：sudo bash install.sh status",
-    "order_leverage_not_match_position_leverage": "已有持倉的槓桿與要開倉的槓桿不同；空倉後再改槓桿",
+    "not-at-white-list": "這組 API key 有綁定 IP，但不是這台主機的對外 IP；查 IP：sudo bash install.sh status",
+    "leverage not match": "訂單槓桿和 OneBullEx 上這個交易對的槓桿不同；空倉時用 install.sh set TV_LEVERAGE <OneBullEx 畫面上的倍數>",
+    "leverage_not_match": "訂單槓桿和 OneBullEx 上這個交易對的槓桿不同；空倉時用 install.sh set TV_LEVERAGE <OneBullEx 畫面上的倍數>",
+    "notional can not less than": "這筆的名目金額低於交易所下限；調大數量（張數 × 面值 × 價格要高於下限）",
 }
 
 
@@ -134,7 +136,7 @@ def parse_signal(msg):
     elif "long" in msg or "short" in msg:
         lq = abs(_dec(msg.get("long", 0), "long"))
         sq = abs(_dec(msg.get("short", 0), "short"))
-        return symbol, (lq * mult, sq * mult), unit, f"long={lq} short={sq}"
+        return symbol, (lq * mult, sq * mult), unit, f"long={lq} short={sq}" + (f" ×{mult}" if mult != 1 else "")
     elif "action" in msg:
         action = str(msg.get("action") or "").strip().lower()
         if action in ("close", "flat", "exit"):
@@ -152,6 +154,8 @@ def parse_signal(msg):
         how = f"action={action}"
     else:
         raise SignalError("訊息要有 market_position+size、target、action 或 long/short 其中一種")
+    if mult != 1:
+        how += f" ×{mult}"
     return symbol, target * mult, unit, how
 
 

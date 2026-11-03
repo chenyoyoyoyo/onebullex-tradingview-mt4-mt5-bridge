@@ -23,7 +23,7 @@ sudo bash install.sh install
 完成時畫面會顯示：
 
 - `接收程式已啟動`，以及一行啟動紀錄：環境網址、`試跑模式（不下單）`、TradingView 官方 4 個來源 IP。
-- **passphrase**：等一下填進 TradingView 警報訊息。**不要截圖分享**；外流時用 `sudo bash install.sh passphrase` 換一組。
+- **passphrase**：TradingView 警報訊息和 MT4／MT5 同步程式都要用。**現在就存進密碼管理器**，註明是哪台主機、哪個機器人帳戶的；不要截圖分享。忘記時不用重設，在主機上自己的終端機執行 `sudo grep '^TV_PASSPHRASE=' /etc/onebullex-tv.env` 查看。只有外流時才用 `sudo bash install.sh passphrase` 換一組（舊的立刻失效，所有訊號來源都要更新）。
 
 > API Key、Secret 由使用者自己在終端機輸入。不要貼進 AI 對話。
 

@@ -11,13 +11,15 @@ cd ~/onebullex-tradingview-bridge/bridge
 | 要做的事 | 指令 |
 | --- | --- |
 | 最近的紀錄（印完就結束，建議先用這個） | `sudo bash install.sh recent`（或 `recent 200`） |
+| 較早版本沒有 `recent`／`spec` 時 | `sudo journalctl -u onebullex-tv -n 60 --no-pager`；`sudo python3 ~/onebullex-tradingview-bridge/bridge/obx_tool.py spec <交易對>` |
 | 即時紀錄（先點終端機，按 Control+C 離開） | `sudo bash install.sh logs` |
 | 查合約規格、1 張名目金額 | `sudo bash install.sh spec XAUSPARTANS_USDT` |
 | 狀態總覽、最近 20 則訊號、Webhook URL、主機 IP | `sudo bash install.sh status` |
 | 切換為試跑 | `sudo bash install.sh dryrun` |
 | 切換為正式下單 | `sudo bash install.sh live` |
 | 重新輸入 API Key 與 Secret | `sudo bash install.sh secret` |
-| 換一組 passphrase | `sudo bash install.sh passphrase`（之後更新所有警報訊息） |
+| 查看目前的 passphrase（只在自己的終端機看） | `sudo grep '^TV_PASSPHRASE=' /etc/onebullex-tv.env` |
+| 換一組 passphrase（舊的立刻失效） | `sudo bash install.sh passphrase`（之後更新所有 TradingView 警報與 MT 同步程式） |
 | 固定槓桿／持倉上限／交易對清單 | `sudo bash install.sh set TV_LEVERAGE 10` 等，見 [06](06-quantity-and-risk.md) |
 | 查餘額與持倉 | `sudo bash install.sh balance` |
 | 更新程式 | `cd .. && git pull && cd bridge && sudo bash install.sh install` |
